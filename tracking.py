@@ -14,8 +14,9 @@ from kivy.uix.textinput import TextInput
 
 TABLES_RATIO = 0.75
 
-TABLES = None
+BANNER = None
 QUEUE = None
+TABLES = None
 
 EARLY_STUDENT = 2.40
 EARLY_ADULT =   2.40
@@ -95,40 +96,46 @@ class TableContainer(GridLayout):
 	def __init__(self, **kwargs):
 		super().__init__(**kwargs)
 		
-		self.rows = 6
-		self.cols = 4
-		self.spacing = "10px"
-		self.padding = "10px"
+		self.rows = 2
+		self.cols = 1
 		
-		self.add_widget(Label(text=''))
-		self.add_widget(Label(text=''))
-		self.add_widget(TableButton(main_text='ping pong table'))
-		self.add_widget(TableButton(main_text='table 16'))
+		global BANNER
 		
-		self.add_widget(Label(text=''))
-		self.add_widget(Label(text=''))
-		self.add_widget(Label(text=''))
-		self.add_widget(TableButton(main_text='table 15'))
+		BANNER = self.banner = Label(text='Cue & Cushion', size_hint_y=0.075)
+		self.add_widget(self.banner)
 		
-		self.add_widget(TableButton(main_text='table 4'))
-		self.add_widget(TableButton(main_text='table 8'))
-		self.add_widget(Label(text=''))
-		self.add_widget(TableButton(main_text='table 14'))
+		self.inner_tables = GridLayout(rows=6, cols=4, spacing='10px', padding='10px')
+		self.add_widget(self.inner_tables)
 		
-		self.add_widget(TableButton(main_text='table 3'))
-		self.add_widget(TableButton(main_text='table 7'))
-		self.add_widget(TableButton(main_text='table 10'))
-		self.add_widget(TableButton(main_text='table 13'))
+		self.inner_tables.add_widget(Label(text=''))
+		self.inner_tables.add_widget(Label(text=''))
+		self.inner_tables.add_widget(TableButton(main_text='ping pong table'))
+		self.inner_tables.add_widget(TableButton(main_text='table 16'))
 		
-		self.add_widget(TableButton(main_text='table 2'))
-		self.add_widget(TableButton(main_text='table 6'))
-		self.add_widget(Label(text=''))
-		self.add_widget(TableButton(main_text='table 12'))
+		self.inner_tables.add_widget(Label(text=''))
+		self.inner_tables.add_widget(Label(text=''))
+		self.inner_tables.add_widget(Label(text=''))
+		self.inner_tables.add_widget(TableButton(main_text='table 15'))
 		
-		self.add_widget(TableButton(main_text='table 1'))
-		self.add_widget(TableButton(main_text='table 5'))
-		self.add_widget(TableButton(main_text='table 9'))
-		self.add_widget(TableButton(main_text='table 11'))
+		self.inner_tables.add_widget(TableButton(main_text='table 4'))
+		self.inner_tables.add_widget(TableButton(main_text='table 8'))
+		self.inner_tables.add_widget(Label(text=''))
+		self.inner_tables.add_widget(TableButton(main_text='table 14'))
+		
+		self.inner_tables.add_widget(TableButton(main_text='table 3'))
+		self.inner_tables.add_widget(TableButton(main_text='table 7'))
+		self.inner_tables.add_widget(TableButton(main_text='table 10'))
+		self.inner_tables.add_widget(TableButton(main_text='table 13'))
+		
+		self.inner_tables.add_widget(TableButton(main_text='table 2'))
+		self.inner_tables.add_widget(TableButton(main_text='table 6'))
+		self.inner_tables.add_widget(Label(text=''))
+		self.inner_tables.add_widget(TableButton(main_text='table 12'))
+		
+		self.inner_tables.add_widget(TableButton(main_text='table 1'))
+		self.inner_tables.add_widget(TableButton(main_text='table 5'))
+		self.inner_tables.add_widget(TableButton(main_text='table 9'))
+		self.inner_tables.add_widget(TableButton(main_text='table 11'))
 
 # TableButtons should have two different possible behaviors when clicked:
 # 1. When clicked and housing a table, it should provide most TableOptions
@@ -350,48 +357,48 @@ class QueueTableOptionsPopup(Popup):
 		self.dismiss()
 
 class EditCustomerPopup(Popup):
-		"""testing editing a customer based on clocking ina customer"""
-		def __init__(self, current_customer, **kwargs):
-				super(EditCustomerPopup, self).__init__(**kwargs)
-				self.current_customer = current_customer
+	"""testing editing a customer based on clocking ina customer"""
+	def __init__(self, current_customer, **kwargs):
+		super(EditCustomerPopup, self).__init__(**kwargs)
+		self.current_customer = current_customer
 
-				self.title = 'Edit Customer'
-				self.size_hint = (0.67, 0.67)
-				self.content = GridLayout(rows=6, cols=1)
-				
-				self.clock_row = ClockRow()				
-				self.clock_row.clock_in_time = self.current_customer.table.clock_in
-				self.clock_row.time_display.text = self.current_customer.table.clock_in.strftime('%I:%M %p')
-				self.content.add_widget(self.clock_row)
+		self.title = 'Edit Customer'
+		self.size_hint = (0.67, 0.67)
+		self.content = GridLayout(rows=6, cols=1)
+		
+		self.clock_row = ClockRow()				
+		self.clock_row.clock_in_time = self.current_customer.table.clock_in
+		self.clock_row.time_display.text = self.current_customer.table.clock_in.strftime('%I:%M %p')
+		self.content.add_widget(self.clock_row)
 
-				self.description_row = DescriptionRow()
-				self.description_row.input.text = self.current_customer.table.description
-				self.content.add_widget(self.description_row)				
-				
-				self.adult_row = PeopleRow('Adults', current_customer.table.adults)
-				self.content.add_widget(self.adult_row)
-				
-				self.student_row = PeopleRow('Students', current_customer.table.students)
-				self.content.add_widget(self.student_row)
-				
-				self.final_row = Button(text='Confirm')
-				self.final_row.bind(on_press=self.confirm)
-				self.content.add_widget(self.final_row)
+		self.description_row = DescriptionRow()
+		self.description_row.input.text = self.current_customer.table.description
+		self.content.add_widget(self.description_row)				
+		
+		self.adult_row = PeopleRow('Adults', current_customer.table.adults)
+		self.content.add_widget(self.adult_row)
+		
+		self.student_row = PeopleRow('Students', current_customer.table.students)
+		self.content.add_widget(self.student_row)
+		
+		self.final_row = Button(text='Confirm')
+		self.final_row.bind(on_press=self.confirm)
+		self.content.add_widget(self.final_row)
 
-				self.cancel_row = Button(text='Cancel')
-				self.cancel_row.bind(on_press=self.cancel_changes)
-				self.content.add_widget(self.cancel_row)
-				
-		def confirm(self, event):                
-				self.current_customer.table.adults = self.adult_row.value
-				self.current_customer.table.students = self.student_row.value
-				self.current_customer.table.description = self.description_row.input.text
-				self.current_customer.table.clock_in = self.clock_row.clock_in_time
-				self.current_customer.render()
-				self.dismiss()
+		self.cancel_row = Button(text='Cancel')
+		self.cancel_row.bind(on_press=self.cancel_changes)
+		self.content.add_widget(self.cancel_row)
+			
+	def confirm(self, event):                
+		self.current_customer.table.adults = self.adult_row.value
+		self.current_customer.table.students = self.student_row.value
+		self.current_customer.table.description = self.description_row.input.text
+		self.current_customer.table.clock_in = self.clock_row.clock_in_time
+		self.current_customer.render()
+		self.dismiss()
 
-		def cancel_changes(self, event):
-				self.dismiss()
+	def cancel_changes(self, event):
+		self.dismiss()
 	
 if __name__ == "__main__":
 	TableTrackingApp().run()
