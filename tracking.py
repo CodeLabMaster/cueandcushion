@@ -253,13 +253,13 @@ class PeopleRow(GridLayout):
 	table used by a ClockInPopup."""
 	max_value = 6
 	
-	def __init__(self, type, **kwargs):
+	def __init__(self, type, intial_value=0, **kwargs):
 		super().__init__(**kwargs)
 		self.rows = 1
 		self.cols = 4
 		
 		self.type = type
-		self.value = 0 #kivy has a better way of handling this with NumericValues
+		self.value = intial_value
 		
 		self.add_widget(Label(text='{}:'.format(self.type)))
 		
@@ -267,11 +267,12 @@ class PeopleRow(GridLayout):
 		self.add_widget(self.number_label)
 		
 		self.sub_btn = Button(text='-')
-		self.sub_btn.disabled = True
+		if self.value == 0: self.sub_btn.disabled = True
 		self.sub_btn.bind(on_press=self.decrease_value)
 		self.add_widget(self.sub_btn)
 		
 		self.add_btn = Button(text='+')
+		if self.value == PeopleRow.max_value: self.add_btn.disabled = True
 		self.add_btn.bind(on_press=self.increase_value)
 		self.add_widget(self.add_btn)
 	
@@ -341,11 +342,56 @@ class QueueTableOptionsPopup(Popup):
 		pass
 		
 	def edit_customer(self, event):
-		pass
+		EditCustomerPopup(self.queue_btn).open()
+		self.dismiss()
 		
 	def clock_out(self, event):
 		QUEUE.inner_queue.remove_widget(self.queue_btn)
 		self.dismiss()
+
+class EditCustomerPopup(Popup):
+		"""testing editing a customer based on clocking ina customer"""
+		def __init__(self, current_customer, **kwargs):
+				super(EditCustomerPopup, self).__init__(**kwargs)
+				self.current_customer = current_customer
+
+				self.title = 'Edit Customer'
+				self.size_hint = (0.67, 0.67)
+				self.content = GridLayout(rows=6, cols=1)
+				
+				self.clock_row = ClockRow()				
+				self.clock_row.clock_in_time = self.current_customer.table.clock_in
+				self.clock_row.time_display.text = self.current_customer.table.clock_in.strftime('%I:%M %p')
+				self.content.add_widget(self.clock_row)
+
+				self.description_row = DescriptionRow()
+				self.description_row.input.text = self.current_customer.table.description
+				self.content.add_widget(self.description_row)				
+				
+				self.adult_row = PeopleRow('Adults', current_customer.table.adults)
+				self.content.add_widget(self.adult_row)
+				
+				self.student_row = PeopleRow('Students', current_customer.table.students)
+				self.content.add_widget(self.student_row)
+				
+				self.final_row = Button(text='Confirm')
+				self.final_row.bind(on_press=self.confirm)
+				self.content.add_widget(self.final_row)
+
+				self.cancel_row = Button(text='Cancel')
+				self.cancel_row.bind(on_press=self.cancel_changes)
+				self.content.add_widget(self.cancel_row)
+				
+		def confirm(self, event):                
+				self.current_customer.table.adults = self.adult_row.value
+				self.current_customer.table.students = self.student_row.value
+				self.current_customer.table.description = self.description_row.input.text
+				self.current_customer.table.clock_in = self.clock_row.clock_in_time
+				self.current_customer.render()
+				self.dismiss()
+
+		def cancel_changes(self, event):
+				self.dismiss()
 	
 if __name__ == "__main__":
 	TableTrackingApp().run()
