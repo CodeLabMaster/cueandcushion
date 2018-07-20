@@ -2,9 +2,6 @@ import datetime as dt
 
 from kivy.app import App
 
-from kivy.garden.datetimepicker import DatetimePicker
-
-
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.stacklayout import StackLayout
